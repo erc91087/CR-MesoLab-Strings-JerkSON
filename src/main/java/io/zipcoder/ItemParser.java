@@ -1,8 +1,11 @@
 package io.zipcoder;
 
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ItemParser {
 
@@ -27,30 +30,51 @@ public class ItemParser {
     }
 
     // 4
-    public Item parseStringIntoItem(String rawItem) throws ItemParseException {
-        int count = 0;
-        String strPrice = "\\d.\\d\\d";
-        Double price = Double.valueOf(strPrice);
-        String type = "(T|t)..(E|e)";
-        String expiration = "(E|e)........(N|n)";
+    public Item parseStringIntoItem(String rawItem) throws ItemParseException { // need addtnl.. methods to check info
 
-        ArrayList<String> temp = parseRawDataIntoStringArray(rawItem);
-      //  ArrayList<Item> myItem = new ArrayList<Item>();
+        String name = checkName(rawItem);
+        Double price = Double.valueOf(checkPrice(rawItem));
+        String type = checkType(rawItem);
+        String expiration = checkExpiration(rawItem);
 
-        for (int i = 0; i < temp.size(); i++) {
-            if (findKeyValuePairsInRawItemData(temp.get(i)).equals(null)) {
-                count++;
-                throw new ItemParseException();
-            }
-            else if (findKeyValuePairsInRawItemData(temp.get(i)).size() == 4) {
-                for (int j = 0; j < temp.size(); j++) {
 
-                }
-            }
-        }
-        return null;
+        return new Item(name, price, type, expiration);
     }
 
+    public String checkName(String input) throws ItemParseException {
+        Pattern patternName = Pattern.compile("([Nn]..[Ee]:)(\\w+)");
+        Matcher matcherName = patternName.matcher(input);
 
+        if (matcherName.find())         // find() will search substrings
+            return matcherName.group(2).toLowerCase();
+        else throw new ItemParseException();
+    }
+
+    public String checkPrice(String input) throws ItemParseException {
+        Pattern patternPrice = Pattern.compile("([Pp]...[Ee]:)(\\d\\.\\d{2})");
+        Matcher matcherPrice = patternPrice.matcher(input);
+
+        if (matcherPrice.find())
+            return matcherPrice.group(2);
+        else throw new ItemParseException();
+    }
+
+    public String checkType(String input) throws ItemParseException {
+        Pattern patternType = Pattern.compile("([Tt]..[Ee]:)(\\w+)");
+        Matcher matcherType = patternType.matcher(input);
+
+        if (matcherType.find())
+            return matcherType.group(2).toLowerCase();
+        else throw new ItemParseException();
+    }
+
+    public String checkExpiration(String input) throws ItemParseException {
+        Pattern patternExpiration = Pattern.compile("([Ee]........[Nn]:)(\\d\\/\\d{2}\\/\\d{4})");
+        Matcher matcherExpiration = patternExpiration.matcher(input);
+
+        if (matcherExpiration.find())
+            return matcherExpiration.group(2);
+        else throw new ItemParseException();
+    }
 
 }
