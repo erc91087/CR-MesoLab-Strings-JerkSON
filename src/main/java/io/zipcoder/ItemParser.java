@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 public class ItemParser {
 
+    public int errorCount = 0;
 
     // 1
     private ArrayList<String> splitStringWithRegexPattern(String stringPattern, String inputString) {
@@ -75,6 +76,24 @@ public class ItemParser {
         if (matcherExpiration.find())
             return matcherExpiration.group(2);
         else throw new ItemParseException();
+    }
+
+    public String fixString(String item) {
+        if (item.equals("")) {
+            errorCount++;
+            return "Error";
+        }
+        if (item.startsWith("c")) {
+            item = item.replace("0", "o");
+        }
+        return item.substring(0, 1).toUpperCase() + item.substring(1);
+    }
+
+    public double fixPrice(String price) {
+        if (price.equals("")) {
+            return 0.0;
+        }
+        return Double.parseDouble(price);
     }
 
 }
